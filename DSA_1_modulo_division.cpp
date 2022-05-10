@@ -1,201 +1,119 @@
 #include<iostream>
+#include<string>
+#define max 10
 using namespace std;
 
-struct Node
-{
-    string data;
-    struct Node *next;
+class hashvalues{
+    public:
+
+    long int number;
+    hashvalues *next;
 };
-
-void add_chain(struct Node **chain, int index, string name)
-{
-    if(chain[index] == NULL)
-    {
-        struct Node *newNode = (struct Node *) malloc(sizeof(struct Node));
-        newNode->data = name;
-        newNode->next = NULL;
-        chain[index] = newNode;
-    }
-    else
-    {
-        struct Node *newNode = (struct Node *) malloc(sizeof(struct Node));
-        newNode->data = name;
-        newNode->next = NULL;
-        struct Node *ptr = chain[index];
-
-        while(ptr->next != NULL)
-        {
-            ptr = ptr->next;
-        }
-        ptr->next = newNode;
-        
-    }
-}
-
-void print_hashtable(string *actual_hastable, struct Node **chain, int size)
-{
-    for(int i = 0; i < size; i++)
-    {
-        cout<<i<<") ";
-        if(actual_hastable[i] != "nothing")
-        {
-            cout<<actual_hastable[i];
-            if(chain[i] != NULL)
-            {
-                struct Node *ptr = chain[i];
-                while(ptr != NULL)
-                {
-                    cout<<" --> "<<ptr->data;
-                    ptr = ptr->next;
-                }
-            }
-        }
-        cout<<endl;
-    }
-    cout<<endl;
-}
-
-
-void free_storage(struct Node **chain, int size)
-{
-    for(int i = 0; i<size; i++)
-    {
-        if(chain[i] != NULL)
-        {
-            struct Node *ptr = chain[i];
-            struct Node *nextptr;
-            
-            while(ptr != NULL)
-            {
-                nextptr = ptr->next;
-                free(ptr);
-                ptr = nextptr;
-            }
+class hashtable{
+    hashvalues *data[max];
+    int index;
+    public:
+    void initialize(){
+        for(int i=0;i<max;i++){
+            data[i]=NULL;
         }
     }
-    cout<<endl<<"Memory Released..."<<endl;
-}
-
-
-int hash_function(int sum, int size)
-{
-    return sum % size;
-}
-
-
-void search_name(string name, string *actual_hastable, struct Node **chain, int size)
-{
-    bool found = 0;
-    int name_ascii_sum = 0;
-
-    int ind = 0;
-    char c;
-
-    while(name[ind] != '\0')
+    hashvalues *createnode(int value)
     {
-        c = name[ind];
-        name_ascii_sum += (int)c;
-        ind++;
+        hashvalues *temp = new hashvalues;
+        temp->next = NULL;
+        temp->number = value;
+        return temp;
     }
+    int hashfunction(int v){
+        return v%max;
 
-    int index = hash_function(name_ascii_sum, size);
-    cout<<index<<endl;
-
-    if(actual_hastable[index] != "nothing")
-    {
-        if(actual_hastable[index] == name)
-        {
-            cout<<name<<" found at "<< index<<endl;
-            found = 1;
-        }
-        else if(chain[index] != NULL)
-        {
-            struct Node *ptr = chain[index];
-            int counter_posititon = 2;
-
-            while(ptr != NULL)
-            {
-                if(ptr->data == name)
-                {
-                    cout<<name<<" found at "<<index<<", "<<counter_posititon<<endl;
-                    found = 1;
-                    break;
-                }
-                ptr = ptr->next;
-                counter_posititon++;
-            }
-        }
     }
-
-    if(!found)
-        cout<<name<<" not found."<<endl;
-}
-
-
-int main()
-{
-    int n;
-    cout<<"How many names you want to insert: ";
-    cin>>n;
-
-    string arr[n];
-    int ascii_sum[n];
-    string actual_hastable[n];
-    struct Node *chain[n];
-
-    cout<<"Enter n Values: ";
-
-    for(int i = 0; i < n; i++)
-    {
-        cin>>arr[i];
-        actual_hastable[i] = "nothing";
-        chain[i] = NULL;
-    }
-
-    for(int i = 0; i < n; i++)
-    {
-        int ind = 0;
-        char c;
-        ascii_sum[i] = 0;
-
-        while(arr[i][ind] != '\0')
+    void insertval(int k){
+        int index = hashfunction(k);
+        hashvalues *temp = new hashvalues;
+        hashvalues *head = new hashvalues;
+        head = createnode(k);
+        temp = data[index];
+        if (temp == NULL)
         {
-            c = arr[i][ind];
-            ascii_sum[i] += (int)c;
-            ind++;
-        }
-    }
-
-    // for(int i = 0; i < n; i++)
-    // {
-    //     cout<<ascii_sum[i]<<endl;
-    // }
-
-    cout<<endl;
-
-    for(int i = 0; i <n; i++)
-    {
-        int index = hash_function(ascii_sum[i], n);
-        cout<<arr[i]<<" will be stored at "<<index<<endl;
-
-        if(actual_hastable[index] == "nothing")
-        {
-            actual_hastable[index] = arr[i];
+            data[index] = head;
         }
         else
         {
-            add_chain(chain, index, arr[i]);
+            while (temp->next != NULL)
+            {
+                temp = temp->next;
+            }
+            temp->next = head;
         }
     }
+    void display(){
+        for(int i=0;i<max;i++){
+            cout<<i<<"]";
+            hashvalues *temp=new hashvalues;
+            temp=data[i];
+            while(temp!=NULL){
+                cout<<temp->number<<"-->";
+                temp=temp->next;
+            }
+            cout<<"\n";
+        }
+    }
+    void search(int item){
+        int index = hashfunction(item);
+        hashvalues *ptr=NULL;
+        ptr=data[index];
+        if(ptr==NULL){
+            cout<<"Element not present";
+        }
+        else{
+            int flag=0;
+            while(ptr!=NULL){
+                if(ptr->number==item){
+                    cout<<"Yes present in the hashtable";
+                    flag++;
+                }
+                ptr=ptr->next;
+            }
+            if(flag==0){
+                cout<<"Element is not present";
+            }
 
+        }
+        
+        
+    }
 
-    cout<<endl<<"HashTable is: "<<endl<<endl;
+};
+int main(){
+    long int num,c;
+    hashtable a;
+    a.initialize();
+    do
+    {
+        cout << "\n1.Insert \n2.Display\n3.Search\n4.Exit" << endl;
+        cin >> c;
+        switch (c)
+        {
+        case 1:
+            cout << "Enter a number :";
+            cin >>num;
+            a.insertval(num);
+            break;
+        case 2:
+            a.display();
+            break;
+        case 3:int k;
+            cout<<"Enter the number to be searched ";
+            cin>>k;
+            a.search(k);
+        }
+        
 
-    print_hashtable(actual_hastable, chain, n);
-
-    search_name("vivek", actual_hastable, chain, n);
-
-    free_storage(chain, n);
-
+    } while (c != 4);
+    
+    
+    
     return 0;
 }
